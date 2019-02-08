@@ -4,20 +4,20 @@ esphomeyaml:
   board: mhetesp32devkit
 
 wifi:
-  ssid: !wifi_ssid
-  password: !wifi_pass
+  ssid: !secret wifi_ssid
+  password: !secret wifi_pass
 
 mqtt:
-  broker: !mqtt_broker
-  username: !mqtt_user
-  password: !mqtt_pass
+  broker: !secret mqtt_broker
+  username: !secret mqtt_user
+  password: !secret mqtt_pass
 
 # Enable logging
 logger:
   level: DEBUG
 
 ota:
-  password: !ota_pass
+  password: !secret ota_pass
 
 dallas:
   - pin: GPIO18
