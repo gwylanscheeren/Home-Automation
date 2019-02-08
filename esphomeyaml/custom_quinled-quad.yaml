@@ -7,6 +7,12 @@ wifi:
   ssid: !secret wifi_ssid
   password: !secret wifi_pass
 
+  # Optional manual IP
+  manual_ip:
+    static_ip: 192.168.0.7
+    gateway: 192.168.0.1
+    subnet: 255.255.255.0
+
 mqtt:
   broker: !secret mqtt_broker
   username: !secret mqtt_user
@@ -75,5 +81,5 @@ light:
 
 sensor:
   - platform: dallas
-    index: 0
+    address: 0xEF02131D7606AA28
     name: "Q1_tempsensor"
