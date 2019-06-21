@@ -1,5 +1,5 @@
 esphomeyaml:
-  name: 'q1_quinled_quad'
+  name: 'testquin'
   platform: ESP32
   board: mhetesp32devkit
 
@@ -9,9 +9,9 @@ wifi:
 
   # Optional manual IP
   manual_ip:
-    static_ip: 192.168.0.7
-    gateway: 192.168.0.1
-    subnet: 255.255.255.0
+    static_ip: !secret static_ip_testquin
+    gateway: !secret static_gateway
+    subnet: !secret static_subnet
 
 mqtt:
   broker: !secret mqtt_broker
@@ -30,7 +30,7 @@ dallas:
 
 switch:
   - platform: gpio
-    name: "Q1_Onboard light"
+    name: "testQuin_onboard_light"
     pin: 2
 
 output:
@@ -59,27 +59,32 @@ output:
     id: LED_gpio_19
 
 light:
-  - platform: monochromatic
-    name: "Q1_LED light ouput1"
-    default_transition_length: 5s
-    output: LED_gpio_16
-
-  - platform: monochromatic
-    name: "Q1_LED light ouput2"
-    default_transition_length: 5s
-    output: LED_gpio_17
-
-  - platform: monochromatic
-    name: "Q1_LED light ouput3"
-    default_transition_length: 5s
-    output: LED_gpio_5
-
-  - platform: monochromatic
-    name: "Q1_LED light ouput4"
-    default_transition_length: 5s
-    output: LED_gpio_19
+  - platform: rgbw
+    name: "testquin_RGBW_strip"
+    red: LED_gpio_16
+    green: LED_gpio_17
+    blue: LED_gpio_5
+    white: LED_gpio_19
+    default_transition_length: 2s
+    effects:
+      - random:          
+          name: "My Slow Random Effect"
+          transition_length: 20s
+          update_interval: 20s
+      - random:
+          name: "My Fast Random Effect"
+          transition_length: 4s
+          update_interval: 5s
+      - random:
+          name: "My Insane Random Effect"
+          transition_length: 1s
+          update_interval: 1s
+      - random:          
+          name: "Totally loco"
+          transition_length: 300ms
+          update_interval: 250ms
 
 sensor:
   - platform: dallas
-    address: 0xEF02131D7606AA28
-    name: "Q1_tempsensor"
+    index: 0
+    name: "testquin_tempsensor"
