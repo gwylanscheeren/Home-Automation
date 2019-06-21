@@ -1,9 +1,10 @@
 substitutions:
   devicename: testQuin
+  lower_devicename: testquin
   this_ip: !secret static_ip_testquin
 
 esphome:
-  name: $devicename
+  name: $lower_devicename
   platform: ESP32
   board: mhetesp32devkit
 
@@ -36,6 +37,7 @@ switch:
   - platform: gpio
     name: ${devicename}_onboard_light
     pin: 2
+    restore_mode: ALWAYS_OFF
 
 output:
   - platform: ledc
