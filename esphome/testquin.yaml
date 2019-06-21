@@ -1,5 +1,9 @@
-esphomeyaml:
-  name: 'testquin'
+substitutions:
+  devicename: testQuin
+  this_ip: !secret static_ip_testquin
+
+esphome:
+  name: $devicename
   platform: ESP32
   board: mhetesp32devkit
 
@@ -9,7 +13,7 @@ wifi:
 
   # Optional manual IP
   manual_ip:
-    static_ip: !secret static_ip_testquin
+    static_ip: $this_ip
     gateway: !secret static_gateway
     subnet: !secret static_subnet
 
@@ -30,7 +34,7 @@ dallas:
 
 switch:
   - platform: gpio
-    name: "testQuin_onboard_light"
+    name: ${devicename}_onboard_light
     pin: 2
 
 output:
@@ -60,7 +64,7 @@ output:
 
 light:
   - platform: rgbw
-    name: "testquin_RGBW_strip"
+    name: ${devicename}_RGBW_strip
     red: LED_gpio_16
     green: LED_gpio_17
     blue: LED_gpio_5
@@ -87,4 +91,4 @@ light:
 sensor:
   - platform: dallas
     index: 0
-    name: "testquin_tempsensor"
+    name: ${devicename}_tempsensor
