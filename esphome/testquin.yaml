@@ -1,0 +1,85 @@
+esphomeyaml:
+  name: 'q1_quinled_quad'
+  platform: ESP32
+  board: mhetesp32devkit
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_pass
+
+  # Optional manual IP
+  manual_ip:
+    static_ip: 192.168.0.7
+    gateway: 192.168.0.1
+    subnet: 255.255.255.0
+
+mqtt:
+  broker: !secret mqtt_broker
+  username: !secret mqtt_user
+  password: !secret mqtt_pass
+
+# Enable logging
+logger:
+  level: DEBUG
+
+ota:
+  password: !secret ota_pass
+
+dallas:
+  - pin: GPIO18
+
+switch:
+  - platform: gpio
+    name: "Q1_Onboard light"
+    pin: 2
+
+output:
+  - platform: ledc
+    pin: 16
+    frequency: 40000Hz
+    bit_depth: 10
+    id: LED_gpio_16
+
+  - platform: ledc
+    pin: 17
+    frequency: 40000Hz
+    bit_depth: 10
+    id: LED_gpio_17
+
+  - platform: ledc
+    pin: 5
+    frequency: 40000Hz
+    bit_depth: 10
+    id: LED_gpio_5
+
+  - platform: ledc
+    pin: 19
+    frequency: 40000Hz
+    bit_depth: 10
+    id: LED_gpio_19
+
+light:
+  - platform: monochromatic
+    name: "Q1_LED light ouput1"
+    default_transition_length: 5s
+    output: LED_gpio_16
+
+  - platform: monochromatic
+    name: "Q1_LED light ouput2"
+    default_transition_length: 5s
+    output: LED_gpio_17
+
+  - platform: monochromatic
+    name: "Q1_LED light ouput3"
+    default_transition_length: 5s
+    output: LED_gpio_5
+
+  - platform: monochromatic
+    name: "Q1_LED light ouput4"
+    default_transition_length: 5s
+    output: LED_gpio_19
+
+sensor:
+  - platform: dallas
+    address: 0xEF02131D7606AA28
+    name: "Q1_tempsensor"
