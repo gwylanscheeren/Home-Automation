@@ -38,13 +38,15 @@ time:
     id: sntp_time
     timezone: "Europe/Amsterdam"
 
-status_led:
-  pin:
-    number: 2
-    inverted: TRUE
+# status_led:
+  # pin:
+    # number: 2
+    # inverted: TRUE
 
 globals:
   - id: temp_timestamp
+    type: int
+  - id: accumulated_error
     type: int
 
 binary_sensor:
@@ -77,7 +79,7 @@ sensor:
     name: ${devicename}_ext_tempsensor
 
     filters:
-    - offset: 3
+    - offset: 2.5
     - sliding_window_moving_average:
         window_size: 3
         send_every: 1
@@ -88,24 +90,41 @@ sensor:
   - platform: template
     name: ${devicename}_Sensor_Status
     lambda: |-
-      ESP_LOGI("StatusSensor", "current timestamp: %i", id(sntp_time).now().timestamp);
+      ESP_LOGI("StatusSensor", "current time is %i:%i", id(sntp_time).now().hour, id(sntp_time).now().minute);
       ESP_LOGI("StatusSensor", "previous timestamp: %i", id(temp_timestamp));
-      int delta_t_stamp = 12;
-      delta_t_stamp = (id(sntp_time).now().timestamp - id(temp_timestamp));
-      ESP_LOGI("StatusSensor", "timestamp delta: %i", delta_t_stamp);
-      ESP_LOGI("StatusSensor", "update interval: %i", ${my_update_interval});
-      if (id(sntp_time).now().timestamp > id(temp_timestamp)) {
-        if (delta_t_stamp == ${my_update_interval}) {
-          id(temp_timestamp) = id(sntp_time).now().timestamp;
-          return 1;
-        } else {
-          id(temp_timestamp) = id(sntp_time).now().timestamp;
-          return 0;
-        }
+      ESP_LOGI("StatusSensor", "current timestamp: %i", id(sntp_time).now().timestamp);
+      if (!id(sntp_time).now().is_valid()) {
+        ESP_LOGI("StatusSensor", "FAILED TO GET VALID TIME! Please check internet connectivity. Detected time: %i:%i", id(sntp_time).now().hour, id(sntp_time).now().minute);
       } else {
-        id(temp_timestamp) = id(sntp_time).now().timestamp;
-        return 0;
+        int delta_t_stamp = 0;
+        int error = 0;
+        delta_t_stamp = (id(sntp_time).now().timestamp - id(temp_timestamp));
+        error = abs (delta_t_stamp - ${my_update_interval});
+        ESP_LOGI("StatusSensor", "timestamp delta: %i", delta_t_stamp);
+        ESP_LOGI("StatusSensor", "update interval: %i", ${my_update_interval});
+        ESP_LOGI("StatusSensor", "accumulated error: %i", id(accumulated_error));
+        ESP_LOGI("StatusSensor", "current error: %i", error);
+        if (error > 1) {
+          if (delta_t_stamp < 0) {
+            ESP_LOGI("StatusSensor", "current timestamp is older than previous one!");
+          }
+          if (error >= ${my_update_interval}) {
+            ESP_LOGI("StatusSensor", "Difference between timestamps is greater than update interval!");
+            id(accumulated_error) += round( error / ${my_update_interval} );
+            ESP_LOGI("StatusSensor", "accumulated error: %i", id(accumulated_error));
+            if (accumulated_error > 5) {
+              ESP_LOGI("StatusSensor", "Temperature sensor seems to be failing!");
+              return 0;
+            }
+          }
+        } else {
+          if (id(accumulated_error) > 0) {
+            id(accumulated_error) -= 1;
+          }
+          return 1;
+        }
       }
+      id(temp_timestamp) = id(sntp_time).now().timestamp;
     update_interval: ${my_update_interval}s
 
     #     - if:

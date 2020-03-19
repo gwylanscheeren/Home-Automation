@@ -1,0 +1,98 @@
+substitutions:
+  devicename: Bathroom_PK
+  lower_devicename: bathroom_pk
+  my_update_interval: "30"
+
+esphome:
+  name: $lower_devicename
+  platform: ESP32
+  board: mhetesp32devkit
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_pass
+
+  # Optional manual IP
+  manual_ip:
+    static_ip: !secret static_ip_testquin
+    gateway: !secret static_gateway
+    subnet: !secret static_subnet
+
+mqtt:
+  broker: !secret mqtt_broker
+  username: !secret mqtt_user
+  password: !secret mqtt_pass
+
+api:
+  password: !secret ota_pass
+
+# Enable logging
+logger:
+  level: DEBUG
+
+ota:
+  password: !secret ota_pass
+
+dallas:
+  - pin: GPIO18
+
+switch:
+  - platform: gpio
+    name: "light_onboard_qqmb"
+    pin: 2
+
+output:
+  - platform: ledc
+    pin: 16
+    frequency: 40000Hz
+    bit_depth: 10
+    id: LED_gpio_16
+
+  - platform: ledc
+    pin: 17
+    frequency: 40000Hz
+    bit_depth: 10
+    id: LED_gpio_17
+
+  - platform: ledc
+    pin: 5
+    frequency: 40000Hz
+    bit_depth: 10
+    id: LED_gpio_5
+
+  - platform: ledc
+    pin: 19
+    frequency: 40000Hz
+    bit_depth: 10
+    id: LED_gpio_19
+
+light:
+  - platform: rgbw
+    name: "LED_RGBW_MB"
+    red: LED_gpio_16
+    green: LED_gpio_17
+    blue: LED_gpio_5
+    white: LED_gpio_19
+    default_transition_length: 5s
+    effects:
+      - flicker:
+          name: "Colour Hover"
+          alpha: 95%
+          intensity: 1.5%
+      - random:
+          name: "My Slow Random Effect"
+          transition_length: 20s
+          update_interval: 20s
+      - random:
+          name: "My Fast Random Effect"
+          transition_length: 4s
+          update_interval: 5s
+      - random:
+          name: "Totally loco"
+          transition_length: 300ms
+          update_interval: 250ms
+
+sensor:
+  - platform: dallas
+    address: 0xEF02131D7606AA28
+    name: "temp_sensor_qqmb"

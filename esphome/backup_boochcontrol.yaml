@@ -1,0 +1,128 @@
+substitutions:
+  devicename: BoochControl
+  lower_devicename: boochcontrol
+
+esphome:
+  name: $lower_devicename
+  platform: ESP32
+  board: mhetesp32devkit
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_pass
+
+  # Optional manual IP
+  manual_ip:
+    static_ip: !secret static_ip_testquin
+    gateway: !secret static_gateway
+    subnet: !secret static_subnet
+
+mqtt:
+  broker: !secret mqtt_broker
+  username: !secret mqtt_user
+  password: !secret mqtt_pass
+
+# Enable logging
+logger:
+  level: DEBUG
+
+ota:
+  password: !secret ota_pass
+
+dallas:
+  - pin: 22
+    update_interval: 30s
+  # - pin: 18
+
+status_led:
+  pin:
+    number: 2
+    inverted: TRUE
+
+switch:
+  # - platform: gpio
+  #   name: ${devicename}_onboard_light
+  #   pin: 2
+  #   inverted: True
+  #   restore_mode: ALWAYS_OFF
+  #   id: onboard_light
+
+  - platform: gpio
+    name: ${devicename}_heating_relay
+    pin: 23
+    restore_mode: ALWAYS_OFF
+    id: heating_relay
+
+sensor:
+  - platform: dallas
+    address: 0xFE02131D66EFAA28
+    id: ext_temp
+    name: ${devicename}_ext_tempsensor
+
+    filters:
+    - offset: 3
+    - sliding_window_moving_average:
+        window_size: 3
+        send_every: 1
+
+    # on_value:
+      # then:
+      #   - if:
+      #       condition:
+      #         - sensor.in_range:
+      #             id: ext_temp
+      #             above: 21
+      #             below: 28
+      #       then:
+      #         - if:
+      #             condition:
+      #               - switch.is_on: onboard_light
+      #             then:
+      #               - switch.turn_off: onboard_light
+      #       else:
+      #         - if:
+      #             condition:
+      #               - switch.is_off: onboard_light
+      #             then:
+      #               - switch.turn_on: onboard_light
+
+  # - platform: dallas
+  #   address: 0x83011432B9B4DE28
+  #   name: ${devicename}_onboard_tempsensor
+interval:
+  - interval: 30s
+    then:
+      - lambda: |-
+                  ESP_LOGI("main", "Raw value of external sensor: %f", id(ext_temp).raw_state);
+                  ESP_LOGI("main", "Processed value of external sensor: %f", id(ext_temp).state);
+
+
+      # -     on_raw_value:
+      #       then:
+      #         - lambda: |-
+      #             ESP_LOGI("main", "Raw value of external sensor: %f", id(ext_temp).raw_state);
+      #             ESP_LOGI("main", "Processed value of external sensor: %f", id(ext_temp).state);
+      #
+      #         if (id(ext_temp).raw_state == "NAN"
+      #
+      #         - climate.control:
+      #             id: temp_control
+      #             mode: "OFF"
+
+climate:
+  - platform: bang_bang
+    name: ${devicename}_temp_control
+    id: temp_control
+    sensor: ext_temp
+    default_target_temperature_low: 24.5 °C
+    default_target_temperature_high: 25.5 °C
+
+    heat_action:
+      - switch.turn_on: heating_relay
+    idle_action:
+      - switch.turn_off: heating_relay
+
+    visual:
+      min_temperature: 17 °C
+      max_temperature: 35 °C
+      temperature_step: 0.1 °C
