@@ -1,6 +1,6 @@
 substitutions:
-  devicename: Bathroom_PK
-  lower_devicename: bathroom_pk
+  devicename: Kitchen
+  lower_devicename: kitchen
   my_update_interval: "30"
 
 esphome:
@@ -14,7 +14,7 @@ wifi:
 
   # Optional manual IP
   manual_ip:
-    static_ip: !secret static_ip_bathroom_pk
+    static_ip: !secret static_ip_kitchen
     gateway: !secret static_gateway
     subnet: !secret static_subnet
 
@@ -32,6 +32,9 @@ logger:
 
 ota:
   password: !secret ota_pass
+
+web_server:
+  port: 80
 
 dallas:
   - pin: GPIO18
@@ -52,43 +55,49 @@ output:
     frequency: 40000Hz
     id: LED_gpio_17
 
-  - platform: ledc
-    pin: 5
-    frequency: 40000Hz
-    id: LED_gpio_5
-
-  - platform: ledc
-    pin: 19
-    frequency: 40000Hz
-    id: LED_gpio_19
+  # - platform: ledc
+  #   pin: 5
+  #   frequency: 40000Hz
+  #   id: LED_gpio_5
+  #
+  # - platform: ledc
+  #   pin: 19
+  #   frequency: 40000Hz
+  #   id: LED_gpio_19
 
 light:
-  - platform: rgbw
-    name: "${devicename}_LED_bath"
-    red: LED_gpio_16
-    green: LED_gpio_17
-    blue: LED_gpio_5
-    white: LED_gpio_19
+  - platform: monochromatic
+    name: "${devicename}_light_left"
+    output: LED_gpio_16
+    id: light_left
     default_transition_length: 5s
     restore_mode: ALWAYS_OFF
-    power_supply: power
+    gamma_correct: 2.8
     effects:
+      - strobe:
+          name: Strobe
       - flicker:
-          name: "Colour Hover"
-          alpha: 95%
-          intensity: 1.5%
-      - random:
-          name: "My Slow Random Effect"
-          transition_length: 20s
-          update_interval: 20s
-      - random:
-          name: "My Fast Random Effect"
-          transition_length: 4s
-          update_interval: 5s
-      - random:
-          name: "Totally loco"
-          transition_length: 300ms
-          update_interval: 250ms
+          name: Flicker
+      - flicker:
+          name: Intens Flicker
+          intensity: 10%
+
+
+  - platform: monochromatic
+    name: "${devicename}_light_right"
+    default_transition_length: 5s
+    output: LED_gpio_17
+    id: light_right
+
+  # - platform: monochromatic
+  #   name: "${devicename}_"
+  #   default_transition_length: 5s
+  #   output: LED_gpio_5
+  #
+  # - platform: monochromatic
+  #   name: "${devicename}_"
+  #   default_transition_length: 5s
+  #   output: LED_gpio_19
 
 sensor:
   - platform: dallas
