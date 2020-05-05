@@ -1,7 +1,6 @@
 substitutions:
   devicename: testQuin
   lower_devicename: testquin
-  this_ip: !secret static_ip_testquin
 
 esphome:
   name: $lower_devicename
@@ -14,7 +13,7 @@ wifi:
 
   # Optional manual IP
   manual_ip:
-    static_ip: $this_ip
+    static_ip: !secret static_ip_testquin
     gateway: !secret static_gateway
     subnet: !secret static_subnet
 
@@ -25,43 +24,49 @@ mqtt:
 
 # Enable logging
 logger:
-  level: DEBUG
+  level: VERBOSE
 
 ota:
   password: !secret ota_pass
 
 dallas:
-  - pin: GPIO18
+  - pin: 22
+    update_interval: 10s
 
 switch:
   - platform: gpio
     name: ${devicename}_onboard_light
     pin: 2
+    inverted: True
     restore_mode: ALWAYS_OFF
+    id: onboard_light
+
+  - platform: gpio
+#    name: ${devicename}_Solid_State_Relay
+    name: test_relay
+    pin: 23
+    restore_mode: ALWAYS_OFF
+    id: relay
 
 output:
   - platform: ledc
     pin: 16
     frequency: 40000Hz
-    bit_depth: 10
     id: LED_gpio_16
 
   - platform: ledc
     pin: 17
     frequency: 40000Hz
-    bit_depth: 10
     id: LED_gpio_17
 
   - platform: ledc
     pin: 5
     frequency: 40000Hz
-    bit_depth: 10
     id: LED_gpio_5
 
   - platform: ledc
     pin: 19
     frequency: 40000Hz
-    bit_depth: 10
     id: LED_gpio_19
 
 light:
@@ -73,7 +78,7 @@ light:
     white: LED_gpio_19
     default_transition_length: 2s
     effects:
-      - random:          
+      - random:
           name: "My Slow Random Effect"
           transition_length: 20s
           update_interval: 20s
@@ -85,12 +90,22 @@ light:
           name: "My Insane Random Effect"
           transition_length: 1s
           update_interval: 1s
-      - random:          
+      - random:
           name: "Totally loco"
           transition_length: 300ms
           update_interval: 250ms
 
 sensor:
   - platform: dallas
-    index: 0
-    name: ${devicename}_tempsensor
+#    index: 0
+    address: 0xFE02131D66EFAA28
+    name: ${devicename}_test_tempsensor
+    on_value_range:
+      - below: 23.5
+        then:
+          - switch.turn_on: relay
+          - switch.turn_on: onboard_light
+      - above: 26.5
+        then:
+          - switch.turn_off: relay
+          - switch.turn_off: onboard_light

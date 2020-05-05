@@ -70,8 +70,6 @@ light:
     blue: LED_gpio_5
     white: LED_gpio_19
     default_transition_length: 5s
-    restore_mode: ALWAYS_OFF
-    power_supply: power
     effects:
       - flicker:
           name: "Colour Hover"

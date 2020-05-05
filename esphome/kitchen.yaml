@@ -22,9 +22,10 @@ mqtt:
   broker: !secret mqtt_broker
   username: !secret mqtt_user
   password: !secret mqtt_pass
+  reboot_timeout: 0s
 
-api:
-  password: !secret ota_pass
+# api:
+  # password: !secret ota_pass
 
 # Enable logging
 logger:
@@ -43,6 +44,7 @@ switch:
   - platform: gpio
     name: "${devicename}_light_onboard"
     pin: 2
+    inverted: True
 
 output:
   - platform: ledc
@@ -71,8 +73,6 @@ light:
     output: LED_gpio_16
     id: light_left
     default_transition_length: 5s
-    restore_mode: ALWAYS_OFF
-    gamma_correct: 2.8
     effects:
       - strobe:
           name: Strobe
@@ -101,6 +101,6 @@ light:
 
 sensor:
   - platform: dallas
-    index: 0
-    # address: 0xEF02131D7606AA28
+    # index: 0
+    address: 0x950300A279855428
     name: "${devicename}_temperature"

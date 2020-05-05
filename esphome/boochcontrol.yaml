@@ -14,7 +14,7 @@ wifi:
 
   # Optional manual IP
   manual_ip:
-    static_ip: !secret static_ip_testquin
+    static_ip: !secret static_ip_boochcontrol
     gateway: !secret static_gateway
     subnet: !secret static_subnet
 
@@ -48,6 +48,7 @@ globals:
     type: int
   - id: accumulated_error
     type: int
+    initial_value: "0"
 
 binary_sensor:
   - platform: status
@@ -112,7 +113,7 @@ sensor:
             ESP_LOGI("StatusSensor", "Difference between timestamps is greater than update interval!");
             id(accumulated_error) += round( error / ${my_update_interval} );
             ESP_LOGI("StatusSensor", "accumulated error: %i", id(accumulated_error));
-            if (accumulated_error > 5) {
+            if ( accumulated_error > 5 ) {
               ESP_LOGI("StatusSensor", "Temperature sensor seems to be failing!");
               return 0;
             }
