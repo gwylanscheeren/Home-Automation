@@ -1,13 +1,13 @@
 substitutions:
   name: athom-mini-switch-cbd299
 packages:
-  athom.mini-switch: github://athom-tech/athom-configs/athom-mini-switch.yaml
+  athom.mini-switch: github://gwylanscheeren/Home-Automation/esphome/packages/athom-mini-switch.yaml
 esphome:
   name: ${name}
   name_add_mac_suffix: false
 api:
   encryption:
-    key: 2ksMS12YRsiYzIEtNzaxG0WPVwBfVwgNX4pcT9TXY20=
+    key: MvInK71NgFC3fPXCkkyChLH6LwK9oTA3QO5HNkaWJPk=
 
 
 wifi:
