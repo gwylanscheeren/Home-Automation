@@ -1,7 +1,7 @@
 substitutions:
-  name: "athom-mini-switch"
-  friendly_name: "Athom Mini Switch"
-  project_name: "athom.mini-switch"
+  name: "gaggiuino-mini-switch"
+  friendly_name: "Gaggiuino Mini Switch"
+  project_name: "gaggiuino.mini-switch"
   project_version: "1.1"
   light_restore_mode: RESTORE_DEFAULT_OFF
 
@@ -30,12 +30,30 @@ web_server:
   port: 80
 
 wifi:
-  ap: {}
+  ssid: "Penny get your own wifi!"
+  password: "Penny is a freeloadeR!"
+
+  manual_ip:
+    static_ip: 192.168.2.40
+    gateway: 192.168.2.254
+    subnet: 255.255.255.0
+
+  ap:
+    ssid: "${friendly_name} Hotspot"
+    password: "yesplease"
 
 captive_portal:
 
 dashboard_import:
   package_import_url: github://gwylanscheeren/Home-Automation/esphome/packages/athom-mini-switch.yaml
+
+script:
+  - id: automatic_poweroff
+    mode: restart
+
+    then:
+      - delay: 90 min
+      - light.turn_off: mini_relay
 
 
 button:
@@ -52,7 +70,7 @@ light:
   - platform: status_led
     id: led
     name: "${friendly_name} Blue LED"
-    disabled_by_default: true
+    # disabled_by_default: true
     pin:
       number: GPIO4
       inverted: true
@@ -60,8 +78,10 @@ light:
   - platform: binary
     id: mini_relay
     output: relay_output
-    name: "${friendly_name} Light"
+    name: "${friendly_name} Power"
     restore_mode: ${light_restore_mode}
+    on_turn_on:
+      - script.execute: automatic_poweroff
 
 sensor:
   - platform: uptime
@@ -76,14 +96,15 @@ binary_sensor:
   # Wired switch
   - platform: gpio
     id: the_switch
-    name: "${friendly_name} Power Switch"
+    name: "${friendly_name} Power"
     disabled_by_default: true
     pin:
       number: GPIO14
       mode: INPUT_PULLUP
-    on_state:
-      - light.toggle: mini_relay
-      - light.toggle: led
+    on_press:
+      - light.turn_on: mini_relay
+    on_release:
+      - light.turn_off: mini_relay
     on_multi_click:
       - timing:
           - ON for at most 0.5s
@@ -103,7 +124,7 @@ binary_sensor:
       number: GPIO3
       mode: INPUT_PULLUP
       inverted: true
-    name: "${friendly_name} Power Button"
+    name: "${friendly_name} Button"
     disabled_by_default: true
     on_multi_click:
       - timing:
@@ -111,7 +132,6 @@ binary_sensor:
           - OFF for at least 0.2s
         then:
           - light.toggle: mini_relay
-          - light.toggle: led
       - timing:
           - ON for at least 4s
         then:
@@ -119,6 +139,11 @@ binary_sensor:
 
   - platform: status
     name: "${friendly_name} Status"
+    on_press:
+      then:
+        - light.turn_on: led
+
+
 text_sensor:
   - platform: wifi_info
     ip_address:
@@ -126,5 +151,15 @@ text_sensor:
       disabled_by_default: true
 
 time:
-  - platform: sntp
-    id: my_time
+  # - platform: sntp
+  #   id: sntp_time
+
+  - platform: homeassistant
+    id: has_time
+
+    # on_time:
+    #   - seconds: 0
+    #     minutes: 0
+    #     hours: 8
+    #     then:
+    #       - light.turn_on: mini_relay
