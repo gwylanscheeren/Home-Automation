@@ -29,18 +29,8 @@ mdns:
 web_server:
   port: 80
 
-wifi:
-  ssid: "Penny get your own wifi!"
-  password: "Penny is a freeloadeR!"
-
-  manual_ip:
-    static_ip: 192.168.2.40
-    gateway: 192.168.2.254
-    subnet: 255.255.255.0
-
   ap:
     ssid: "${friendly_name} Hotspot"
-    password: "yesplease"
 
 captive_portal:
 
