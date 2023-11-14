@@ -1,8 +1,8 @@
 substitutions:
-  name: "gaggiuino-mini-switch"
-  friendly_name: "Gaggiuino Mini Switch"
-  project_name: "gaggiuino.mini-switch"
-  project_version: "1.1"
+  name: "gaggiuino"
+  friendly_name: "Gaggiuino"
+  project_name: "gaggiuino"
+  project_version: "1.0"
   light_restore_mode: RESTORE_DEFAULT_OFF
 
 esphome:
