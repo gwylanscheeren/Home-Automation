@@ -1,0 +1,172 @@
+substitutions:
+  name: "athom-sw02-v2"
+  friendly_name: "Athom SW02 V2"
+  project_name: "athom.sw02-v2"
+  project_version: "1.1"
+  light1_restore_mode: RESTORE_DEFAULT_OFF
+  light2_restore_mode: RESTORE_DEFAULT_OFF
+
+esphome:
+  name: "${name}"
+  name_add_mac_suffix: true
+  project:
+    name: "${project_name}"
+    version: "${project_version}"
+
+esp8266:
+  board: esp8285
+  restore_from_flash: true
+
+preferences:
+  flash_write_interval: 1min
+
+api:
+
+ota:
+
+logger:
+  baud_rate: 0
+
+mdns:
+  disabled: false
+
+web_server:
+  port: 80
+
+wifi:
+  ap: {} # This spawns an AP with the device name and mac address with no password.
+
+captive_portal:
+
+dashboard_import:
+  package_import_url: github://athom-tech/athom-configs/athom-sw02-v2.yaml
+
+binary_sensor:
+  - platform: status
+    name: "${friendly_name} Status"
+
+  # Touch Buttons
+  - platform: gpio
+    pin:
+      inverted: true
+      number: GPIO3
+      mode:
+        input: true
+        pullup: true
+    name: "${friendly_name} Button 1"
+    disabled_by_default: true
+    on_multi_click:
+      - timing:
+          - ON for at most 0.5s
+          - OFF for at least 0.2s
+        then:
+          - light.toggle: light1
+      - timing:
+          - ON for at least 4s
+        then:
+          - button.press: Reset
+
+  - platform: gpio
+    pin:
+      inverted: true
+      number: GPIO5
+      mode:
+        input: true
+        pullup: true
+    name: "${friendly_name} Button 2"
+    disabled_by_default: true
+    on_click:
+      max_length: 0.5s
+      then:
+        - light.toggle: light2
+
+sensor:
+  - platform: uptime
+    name: "${friendly_name} Uptime Sensor"
+
+  - platform: wifi_signal
+    name: "${friendly_name} WiFi Signal"
+    update_interval: 60s
+
+button:
+  - platform: factory_reset
+    name: Restart with Factory Default Settings
+    id: Reset
+
+output:
+  # Relays
+  - platform: gpio
+    pin: GPIO13
+    id: relay1
+  - platform: gpio
+    pin: GPIO4
+    id: relay2
+
+  # - platform: gpio
+  #   pin: GPIO16
+  #   id: io16
+
+  # Button LEDs (1.0 = Blue / 0.0 = Red)
+  - platform: esp8266_pwm
+    pin: GPIO16
+    inverted: true
+    id: led1
+  - platform: esp8266_pwm
+    pin: GPIO1
+    inverted: true
+    id: led2
+
+light:
+  - platform: status_led
+    name: "${friendly_name} Wifi LED"
+    disabled_by_default: true
+    pin:
+      number: GPIO0
+      inverted: true
+
+  # Relays
+  - platform: binary
+    name: "${friendly_name} Light 1"
+    id: light1
+    output: relay1
+    restore_mode: ${light1_restore_mode}
+
+    on_turn_on:
+      - light.turn_on: light3
+    on_turn_off:
+      - light.turn_off: light3
+  - platform: binary
+    name: "${friendly_name} Light 2"
+    id: light2
+    output: relay2
+    restore_mode: ${light2_restore_mode}
+
+
+    on_turn_on:
+      - light.turn_on: light4
+    on_turn_off:
+      - light.turn_off: light4
+
+  # Button LEDs
+  - platform: monochromatic
+    name: "${friendly_name} LED1"
+    disabled_by_default: true
+    id: light3
+    output: led1
+    default_transition_length: 500ms
+  - platform: monochromatic
+    name: "${friendly_name} LED2"
+    disabled_by_default: true
+    id: light4
+    output: led2
+    default_transition_length: 500ms
+
+text_sensor:
+  - platform: wifi_info
+    ip_address:
+      name: "${friendly_name} IP Address"
+      disabled_by_default: true
+
+time:
+  - platform: sntp
+    id: my_time
