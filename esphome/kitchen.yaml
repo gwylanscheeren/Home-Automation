@@ -1,0 +1,106 @@
+substitutions:
+  devicename: Kitchen
+  lower_devicename: kitchen
+  my_update_interval: "30"
+
+esphome:
+  name: $lower_devicename
+  platform: ESP32
+  board: mhetesp32devkit
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  # Optional manual IP
+  manual_ip:
+    static_ip: !secret static_ip_kitchen
+    gateway: !secret static_gateway
+    subnet: !secret static_subnet
+
+mqtt:
+  broker: !secret mqtt_broker
+  username: !secret mqtt_user
+  password: !secret mqtt_pass
+  reboot_timeout: 0s
+
+# api:
+  # password: !secret ota_pass
+
+# Enable logging
+logger:
+  level: DEBUG
+
+ota:
+  password: !secret ota_pass
+
+web_server:
+  port: 80
+
+dallas:
+  - pin: GPIO18
+
+switch:
+  - platform: gpio
+    name: "${devicename}_light_onboard"
+    pin: 2
+    inverted: True
+
+output:
+  - platform: ledc
+    pin: 16
+    frequency: 40000Hz
+    id: LED_gpio_16
+
+  - platform: ledc
+    pin: 17
+    frequency: 40000Hz
+    id: LED_gpio_17
+
+  # - platform: ledc
+  #   pin: 5
+  #   frequency: 40000Hz
+  #   id: LED_gpio_5
+  #
+  # - platform: ledc
+  #   pin: 19
+  #   frequency: 40000Hz
+  #   id: LED_gpio_19
+
+light:
+  - platform: monochromatic
+    name: "${devicename}_light_left"
+    output: LED_gpio_16
+    id: light_left
+    default_transition_length: 5s
+    effects:
+      - strobe:
+          name: Strobe
+      - flicker:
+          name: Flicker
+      - flicker:
+          name: Intens Flicker
+          intensity: 10%
+
+
+  - platform: monochromatic
+    name: "${devicename}_light_right"
+    default_transition_length: 5s
+    output: LED_gpio_17
+    id: light_right
+
+  # - platform: monochromatic
+  #   name: "${devicename}_"
+  #   default_transition_length: 5s
+  #   output: LED_gpio_5
+  #
+  # - platform: monochromatic
+  #   name: "${devicename}_"
+  #   default_transition_length: 5s
+  #   output: LED_gpio_19
+
+sensor:
+  - platform: dallas
+    # index: 0
+    address: 0x950300A279855428
+    name: "${devicename}_temperature"

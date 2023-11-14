@@ -1,0 +1,15 @@
+substitutions:
+  name: athom-rgbww-light-9e24f5
+packages:
+  athom.rgbww-light: github://athom-tech/athom-configs/athom-rgbww-light.yaml
+esphome:
+  name: ${name}
+  name_add_mac_suffix: false
+api:
+  encryption:
+    key: F5incoEh4LfCIICJBQCgYcgLYVB2iKXjtsewtttWs7I=
+
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
