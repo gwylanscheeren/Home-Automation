@@ -1,5 +1,5 @@
 substitutions:
-  name: athom-mini-switch-cbd299
+  name: gaggiuino
 packages:
   athom.mini-switch: github://gwylanscheeren/Home-Automation/esphome/packages/athom-mini-switch.yaml
 esphome:
@@ -7,7 +7,7 @@ esphome:
   name_add_mac_suffix: false
 api:
   encryption:
-    key: MvInK71NgFC3fPXCkkyChLH6LwK9oTA3QO5HNkaWJPk=
+    key: v9qa2/ZN/EfHEwXg2GRt5wNg0SDh+QJvBrggLrtcCXA=
 
 
 wifi:
