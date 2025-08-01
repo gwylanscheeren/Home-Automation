@@ -1,0 +1,14 @@
+ <advancedsettings version="1.0">
+   <video>
+      <!-- Extras: Section Start -->
+      <excludefromscan action="append">
+          <regexp>/Extras/</regexp>
+          <regexp>[\\/]Extras[\\/]</regexp>
+      </excludefromscan>
+      <excludetvshowsfromscan action="append">
+          <regexp>/Extras/</regexp>
+          <regexp>[\\/]Extras[\\/]</regexp>
+      </excludetvshowsfromscan>
+      <!-- Extras: Section End -->
+   </video>
+ </advancedsettings>
